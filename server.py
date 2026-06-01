@@ -40,36 +40,67 @@ def list_tables():
     finally:
         conn.close()
 
+def is_safe_name(name: str) -> bool:
+    """Valida que los nombres de tablas o columnas solo contengan caracteres alfanuméricos y guiones bajos."""
+    return re.match(r'^[a-zA-Z0-9_]+$', name) is not None
+
 @mcp.tool()
 def describe_table(table_name: str):
     """Obtiene la estructura de una tabla y sus relaciones. Úsala para entender el esquema antes de consultar."""
+    if not is_safe_name(table_name):
+        return {"isError": True, "message": "Nombre de tabla inválido o sospechoso."}
+    
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     try:
-        # Estructura de columnas
-        cursor.execute(f"DESCRIBE {table_name}")
+        # Estructura de columnas (Usamos parámetros para seguridad)
+        cursor.execute(f"DESCRIBE `{table_name}`")
         columns = cursor.fetchall()
         
-        # Intentamos buscar claves foráneas para entender las relaciones (estilo Oracle)
-        cursor.execute(f"""
+        # Relaciones de Claves Foráneas
+        cursor.execute("""
             SELECT COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
             FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-            WHERE TABLE_NAME = '{table_name}' AND TABLE_SCHEMA = DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL
-        """)
+            WHERE TABLE_NAME = %s AND TABLE_SCHEMA = DATABASE() AND REFERENCED_TABLE_NAME IS NOT NULL
+        """, (table_name,))
         relations = cursor.fetchall()
         
         return {
             "table": table_name,
             "columns": columns,
-            "relations_detected": relations if relations else "No se detectaron FKs directas."
+            "relations": relations if relations else "Sin relaciones detectadas."
         }
     except Exception as e:
-        return {"isError": True, "message": f"Hubo un problema al describir '{table_name}': {str(e)}"}
+        return {"isError": True, "message": f"Error al describir tabla: {str(e)}"}
+    finally:
+        conn.close()
+
+@mcp.tool()
+def explain_query(sql: str):
+    """
+    Analiza el plan de ejecución de una consulta (EXPLAIN). 
+    Úsala para diagnosticar por qué una consulta es lenta o qué índices está usando MySQL.
+    """
+    if not sql.upper().strip().startswith("SELECT"):
+        return {"isError": True, "message": "Solo se pueden analizar planes de ejecución para consultas SELECT."}
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute(f"EXPLAIN {sql}")
+        plan = cursor.fetchall()
+        return {
+            "explanation": plan,
+            "advice": "Mira la columna 'type': 'ALL' significa que estás escaneando toda la tabla (lento). Busca 'index' o 'ref'."
+        }
+    except Exception as e:
+        return {"isError": True, "message": f"No se pudo analizar el plan: {str(e)}"}
     finally:
         conn.close()
 
 @mcp.tool()
 def execute_query(sql: str, confirm: bool = False):
+    # ... (Mantenemos la lógica de confirmación anterior)
     """
     Ejecuta una consulta SQL. 
     IMPORTANTE: Si la consulta es UPDATE o DELETE, esta herramienta fallará a menos que confirm=True.
