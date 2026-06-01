@@ -21,6 +21,9 @@ Incorporamos herramientas de auditoría que analizan cómo MySQL ejecuta tus con
 ### 3. 🔗 Mapeo de Relaciones (Oracle Style)
 Detectamos automáticamente las Claves Foráneas (FK) y las presentamos de forma clara para que el LLM entienda tu esquema sin alucinaciones.
 
+### 4. 📁 Exportación Masiva (CSV/JSON)
+¿Necesitas sacar miles de filas? Nuestra herramienta de exportación guarda los datos directamente en una carpeta local (`exports/`), evitando saturar el chat y ahorrando tokens.
+
 ---
 
 ## 🏗️ Cómo funciona (Arquitectura)
