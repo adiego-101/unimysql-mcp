@@ -1,47 +1,100 @@
 # 🎓 UniMySQL-MCP (Tutor Edition)
 
-¡Bienvenido al servidor MCP diseñado para democratizar el aprendizaje de bases de datos! 🚀
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![MCP Protocol](https://img.shields.io/badge/Protocol-MCP-orange.svg)](https://modelcontextprotocol.io)
 
-Este no es el típico conector de bases de datos. **UniMySQL-MCP** es un tutor interactivo que vive en tu chat y te ayuda a dominar MySQL sin romper nada en el intento.
+> **UniMySQL-MCP** no es solo un conector de base de datos; es el tutor que desearías haber tenido en primer año de facultad. Transforma tu IA en un experto en SQL que te guía, te protege y te enseña.
 
-## ✨ Características que nos hacen diferentes
-- **Capa de Supervisión Interactiva:** Si intentas borrar o actualizar datos, el tutor te detendrá, te explicará las consecuencias y te pedirá permiso. ¡Se acabaron los `DELETE` accidentales sin `WHERE`!
-- **Mapeo Inteligente de Relaciones:** Al estilo de Oracle, detectamos automáticamente cómo se conectan tus tablas para que tus `JOIN` tengan sentido desde el primer momento.
-- **Paginación Preventiva:** Protegemos tu chat limitando automáticamente los resultados de grandes consultas.
-- **Tono Humano:** Commits reales, comentarios honestos y una IA que te trata como a un colega estudiante.
+---
 
-## 🛠️ Instalación Rápida (Para universitarios con prisa)
+## 🌟 ¿Qué hace a UniMySQL único?
 
-1. **Instala las dependencias:**
-   Necesitas Python 3.10+ y, opcionalmente, `uv` para una velocidad de vértigo.
+A diferencia de otros servidores MCP que son "cajas negras" o riesgos de seguridad, UniMySQL está construido bajo la filosofía de **Aprendizaje Supervisado**:
+
+### 1. 🛡️ Capa de Supervisión Interactiva
+Si intentas realizar un `DELETE` o `UPDATE`, el servidor intercepta la petición. El Tutor explica las consecuencias y solo ejecuta el comando si confirmas explícitamente. ¡Adiós a los errores catastróficos!
+
+### 2. 📊 Planificador Educativo (Explain-First)
+Incorporamos herramientas de auditoría que analizan cómo MySQL ejecuta tus consultas. La IA puede detectar si te falta un índice o si tu consulta es ineficiente antes de que se convierta en un problema.
+
+### 3. 🔗 Mapeo de Relaciones (Oracle Style)
+Detectamos automáticamente las Claves Foráneas (FK) y las presentamos de forma clara para que el LLM entienda tu esquema sin alucinaciones.
+
+---
+
+## 🏗️ Cómo funciona (Arquitectura)
+
+```mermaid
+graph TD
+    User((Estudiante)) -->|Pregunta Natural| LLM[Model Context Protocol Client]
+    LLM -->|JSON-RPC| MCP[UniMySQL-MCP Server]
+    
+    subgraph "Seguridad & Tutoría"
+        MCP --> Guard{¿Es Destructivo?}
+        Guard -->|Sí| Warn[Pedir Confirmación]
+        Guard -->|No| Safe[Ejecutar SQL]
+    end
+    
+    Safe --> MySQL[(MySQL Localhost)]
+    MySQL --> Results[Resultados Paginados]
+    Results -->|Feedback Educativo| LLM
+```
+
+---
+
+## 🚀 Instalación Ultra-Rápida
+
+### Opción Global (Recomendada)
+Hemos creado un script que configura todo por ti. Solo descarga y corre:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/adiego-101/unimysql-mcp/main/setup.sh | bash
+```
+
+### Manual (Paso a paso)
+1. **Clona el repo:**
+   ```bash
+   git clone https://github.com/adiego-101/unimysql-mcp.git
+   cd unimysql-mcp
+   ```
+2. **Instala dependencias:**
    ```bash
    pip install mcp mysql-connector-python python-dotenv
    ```
+3. **Configura tu `.env`:**
+   Copia `.env.example` a `.env` y ajusta tus credenciales.
 
-2. **Configura tu acceso:**
-   Copia el archivo `.env.example` a `.env` y pon tus credenciales de localhost.
+---
 
-3. **Conéctalo a tu cliente (Cursor, Claude Desktop, Gemini CLI):**
-   Añade esto a tu configuración de MCP:
-   ```json
-   "unimysql": {
-     "command": "python",
-     "args": ["/tu/ruta/al/unimysql-mcp/server.py"]
-   }
-   ```
+## 🛠️ Configuración en Agentes
 
-## 🔐 Guía de Seguridad: El Usuario Tutor
-No uses `root`. Sé un buen ingeniero y crea un usuario con los permisos justos. Ejecuta esto en tu MySQL:
+### Claude Desktop
+Añade esto a tu `claude_desktop_config.json`:
+```json
+"unimysql": {
+  "command": "python",
+  "args": ["/ruta/absoluta/a/unimysql_mcp/server.py"]
+}
+```
+
+### Cursor / Gemini CLI
+Solo apunta el servidor MCP a la ruta del archivo `server.py`.
+
+---
+
+## 🔐 El "Usuario Tutor" (Buenas Prácticas)
+No uses `root`. Sigue nuestra guía para crear un usuario con los permisos exactos:
 
 ```sql
--- Creamos al tutor
-CREATE USER 'mcp_tutor'@'localhost' IDENTIFIED BY 'tu_password_seguro';
-
--- Le damos permiso para lo necesario en tu base de datos
+CREATE USER 'mcp_tutor'@'localhost' IDENTIFIED BY 'tu_password';
 GRANT SELECT, INSERT, UPDATE, DELETE ON universidad.* TO 'mcp_tutor'@'localhost';
-
 FLUSH PRIVILEGES;
 ```
 
 ---
-*Hecho con ❤️ para la comunidad abierta de OpenAI. Si este proyecto te sirve para aprobar bases de datos, ¡mándame una estrella en GitHub!* ⭐
+
+## 🤝 Contribuir
+Este es un proyecto **Open Source** para estudiantes. Si tienes una idea para una nueva herramienta educativa, ¡abre un PR! 
+
+*Hecho con ❤️ para la comunidad de OpenAI y estudiantes de todo el mundo.* ⭐
