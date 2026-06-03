@@ -1,0 +1,32 @@
+# Smithery Configuration
+# See https://smithery.ai/docs/config for more details
+
+name: mysql-mcp-guard-python
+version: 0.1.0
+description: Tutor educativo de MySQL con protecciones interactivas para estudiantes.
+author: adiego-101
+repository: https://github.com/adiego-101/unimysql-mcp
+license: MIT
+
+# Configuration for the server
+config:
+  MYSQL_HOST:
+    type: string
+    description: MySQL host (default: localhost)
+    default: localhost
+  MYSQL_USER:
+    type: string
+    description: Usuario de MySQL
+    required: true
+  MYSQL_PASSWORD:
+    type: string
+    description: Contraseña de MySQL
+    secret: true
+  MYSQL_DATABASE:
+    type: string
+    description: Nombre de la base de datos
+    required: true
+
+# Runtime environment
+runtime: python
+startCommand: uvx --with mysql-connector-python --with python-dotenv unimysql-mcp

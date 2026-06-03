@@ -1,0 +1,22 @@
+[project]
+name = "mysql-mcp-guard"
+version = "0.1.1"
+description = "Professional MySQL MCP server with integrated security guardrails and performance auditing."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "adiego-101", email = "adiego.portillo@gmail.com" }
+]
+keywords = ["mcp", "model-context-protocol", "mysql", "ai-tools", "education"]
+dependencies = [
+    "mcp>=1.2.1",
+    "mysql-connector-python>=8.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+unimysql-tutor = "server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
